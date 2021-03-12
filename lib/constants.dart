@@ -9,6 +9,8 @@ const Map<String, String> kRouteNames = {
   'home': '/',
   'results': '/results',
   'settings': '/settings',
+  'createProfile': '/newProfile',
+  'loadProfiles': '/userProfiles'
 };
 
 const double kBottomContainerHeight = 80.0;
@@ -71,6 +73,7 @@ final TextInputFormatter kAllowOnlyDoubles = FilteringTextInputFormatter.allow(
   RegExp(r'(^\d*\.?\d*)'),
 );
 
+const kProfileListKey = 'profiles';
 const kGenderStorageKey = 'gender';
 const kMeasurementStorageKey = 'measurement';
 const kHeightStorageKey = 'height';
