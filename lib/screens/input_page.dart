@@ -21,8 +21,8 @@ class _InputPageState extends State<InputPage> {
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   Gender _selectedGender = Gender.female;
   MeasurementSystem _selectedMeasurement = MeasurementSystem.imperial;
-  String _selectedHeightMeasurement = 'ft';
-  String _selectedWeightMeasurement = 'lb';
+  String _selectedHeightMeasurement = kFeetSuffix;
+  String _selectedWeightMeasurement = kPoundsSuffix;
   double _height = 6.0;
   double _weight = 132.0;
   int _age = 18;
@@ -81,12 +81,12 @@ class _InputPageState extends State<InputPage> {
   void _setMeasurementSpecificProps() {
     if (_selectedMeasurement == MeasurementSystem.metric) {
       _isSelected = [true, false];
-      _selectedHeightMeasurement = 'cm';
-      _selectedWeightMeasurement = 'kg';
+      _selectedHeightMeasurement = kCentimetreSuffix;
+      _selectedWeightMeasurement = kKiloSuffix;
     } else {
       _isSelected = [false, true];
-      _selectedHeightMeasurement = 'ft';
-      _selectedWeightMeasurement = 'lb';
+      _selectedHeightMeasurement = kFeetSuffix;
+      _selectedWeightMeasurement = kPoundsSuffix;
     }
   }
 
@@ -340,12 +340,12 @@ class _InputPageState extends State<InputPage> {
 
               if (_isSelected[0] == true) {
                 _selectedMeasurement = MeasurementSystem.metric;
-                _selectedHeightMeasurement = 'cm';
-                _selectedWeightMeasurement = 'kg';
+                _selectedHeightMeasurement = kCentimetreSuffix;
+                _selectedWeightMeasurement = kKiloSuffix;
               } else {
                 _selectedMeasurement = MeasurementSystem.imperial;
-                _selectedHeightMeasurement = 'ft';
-                _selectedWeightMeasurement = 'lb';
+                _selectedHeightMeasurement = kFeetSuffix;
+                _selectedWeightMeasurement = kPoundsSuffix;
               }
             });
           },

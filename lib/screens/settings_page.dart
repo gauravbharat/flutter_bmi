@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../constants.dart';
 import 'package:bmi_calculator/components/reusable_card.dart';
 import 'package:bmi_calculator/components/reusable_text_container.dart';
+import 'package:bmi_calculator/components/show_snackbar.dart';
 
 // class CustomRangeTextInputFormatter extends TextInputFormatter {
 //   @override
@@ -67,16 +68,22 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() {
       _selectedGender = userSelectedGender;
       _selectedMeasurementSystem = userSelectedMeasurementSystem;
-      _userSavedHeight = prefs.getDouble(kHeightStorageKey).toString();
-      _userSavedWeight = prefs.getInt(kWeightStorageKey).toString();
-      _userSavedAge = prefs.getInt(kAgeStorageKey).toString();
+      _userSavedHeight = prefs.containsKey(kHeightStorageKey)
+          ? prefs.getDouble(kHeightStorageKey).toString()
+          : kSliderMin.toStringAsFixed(1);
+      _userSavedWeight = prefs.containsKey(kWeightStorageKey)
+          ? prefs.getInt(kWeightStorageKey).toString()
+          : kMinWeight.round().toString();
+      _userSavedAge = prefs.containsKey(kAgeStorageKey)
+          ? prefs.getInt(kAgeStorageKey).toString()
+          : kMinAge.toString();
     });
 
-    print('userSelectedGender $userSelectedGender');
-    print('userSelectedMeasurement $userSelectedMeasurementSystem');
-    print('_userSavedHeight $_userSavedHeight');
-    print('_userSavedWeight $_userSavedWeight');
-    print('_userSavedAge $_userSavedAge');
+    // print('userSelectedGender $userSelectedGender');
+    // print('userSelectedMeasurement $userSelectedMeasurementSystem');
+    // print('_userSavedHeight $_userSavedHeight');
+    // print('_userSavedWeight $_userSavedWeight');
+    // print('_userSavedAge $_userSavedAge');
   }
 
   Future<void> _storeValues() async {
@@ -102,11 +109,11 @@ class _SettingsPageState extends State<SettingsPage> {
       if (prefs.containsKey(kAgeStorageKey)) prefs.remove(kAgeStorageKey);
     }
 
-    showSnackbar(
+    ShowSnackbar(
       currentContext: context,
       textMessage: 'Your preferences are saved successfully!',
-      isError: false,
-    );
+      displayDuration: 2,
+    )..showSuccess();
 
     // Send back changed values to the main screen, to instantly update the preferences
     Navigator.pop(context, <String, dynamic>{
@@ -177,13 +184,8 @@ class _SettingsPageState extends State<SettingsPage> {
                           activeColor: _getColor(),
                           value: Gender.male,
                           groupValue: _selectedGender,
-                          onChanged: (value) async {
-                            final SharedPreferences prefs = await _prefs;
-
-                            setState(() {
-                              _selectedGender = value;
-                            });
-                          },
+                          onChanged: (value) =>
+                              setState(() => _selectedGender = value),
                         ),
                         Text(
                           'Male',
@@ -193,11 +195,8 @@ class _SettingsPageState extends State<SettingsPage> {
                           activeColor: _getColor(),
                           value: Gender.female,
                           groupValue: _selectedGender,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedGender = value;
-                            });
-                          },
+                          onChanged: (value) =>
+                              setState(() => _selectedGender = value),
                         ),
                         Text(
                           'Female',
@@ -218,11 +217,8 @@ class _SettingsPageState extends State<SettingsPage> {
                           activeColor: _getColor(),
                           value: MeasurementSystem.metric,
                           groupValue: _selectedMeasurementSystem,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedMeasurementSystem = value;
-                            });
-                          },
+                          onChanged: (value) => setState(
+                              () => _selectedMeasurementSystem = value),
                         ),
                         Text(
                           'Metric',
@@ -232,11 +228,8 @@ class _SettingsPageState extends State<SettingsPage> {
                           activeColor: _getColor(),
                           value: MeasurementSystem.imperial,
                           groupValue: _selectedMeasurementSystem,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedMeasurementSystem = value;
-                            });
-                          },
+                          onChanged: (value) => setState(
+                              () => _selectedMeasurementSystem = value),
                         ),
                         Text(
                           'Imperial',
@@ -250,50 +243,48 @@ class _SettingsPageState extends State<SettingsPage> {
                     iconText: 'Height',
                     maxLength: 3,
                     hintText: 'Height in feet ex. 5.7',
-                    helperText: 'cms = height in feet x 30.48',
+                    // helperText: 'cms = height in feet x 30.48',
                     inputFormattersList: [
                       FilteringTextInputFormatter.allow(
                         RegExp(r'(^\d*\.?\d*)'),
                       ),
                     ],
-                    controller: _heightController
-                      ..text = _userSavedHeight ?? '',
+                    controller: _heightController..text = _userSavedHeight,
                   ),
                   ReusableTextContainer(
                     colour: _getColor(),
                     iconText: 'Weight',
                     maxLength: 3,
                     hintText: 'Weight in lbs ex. 132',
-                    helperText: 'kg = weight in lbs x 0.45',
+                    // helperText: 'kg = weight in lbs x 0.45',
                     inputFormattersList: [kAllowOnlyInt],
-                    controller: _weightController
-                      ..text = _userSavedWeight ?? '',
+                    controller: _weightController..text = _userSavedWeight,
                   ),
                   ReusableTextContainer(
                     colour: _getColor(),
                     iconText: 'Age',
                     maxLength: 2,
-                    hintText: 'Ex. 18',
+                    hintText: 'Years equal or between 10 to 90',
                     inputFormattersList: [kAllowOnlyInt],
-                    controller: _ageController..text = _userSavedAge ?? '',
+                    controller: _ageController..text = _userSavedAge,
                   ),
                   ButtonBar(
                     children: [
                       buildElevatedButton(
                         buttonText: 'Save',
                         onPressed: () {
-                          //TODO do type validations before storing data in shared preferences
+                          //Do type validations before storing data in shared preferences
                           if (_heightController.text.isNotEmpty) {
                             final double height =
                                 double.parse(_heightController.text);
 
                             if (height < kSliderMin || height > kSliderMax) {
                               //  show error
-                              showSnackbar(
+                              ShowSnackbar(
                                 currentContext: context,
                                 textMessage:
                                     'Height should be equal to or between $kSliderMin and $kSliderMax feet only!',
-                              );
+                              )..showError();
                               return;
                             }
                           }
@@ -305,11 +296,11 @@ class _SettingsPageState extends State<SettingsPage> {
                             if (weight < kMinWeight.round() ||
                                 weight > kMaxWeight.round()) {
                               //  show error
-                              showSnackbar(
+                              ShowSnackbar(
                                 currentContext: context,
                                 textMessage:
                                     'Weight should be equal to or between ${kMinWeight.round()} and ${kMaxWeight.round()} pounds only!',
-                              );
+                              )..showError();
                               return;
                             }
                           }
@@ -319,11 +310,11 @@ class _SettingsPageState extends State<SettingsPage> {
 
                             if (age < kMinAge || age > kMaxAge) {
                               //  show error
-                              showSnackbar(
+                              ShowSnackbar(
                                 currentContext: context,
                                 textMessage:
                                     'Age should be equal to or between $kMinAge and $kMaxAge only!',
-                              );
+                              )..showError();
                               return;
                             }
                           }
@@ -354,29 +345,6 @@ class _SettingsPageState extends State<SettingsPage> {
         ],
       ),
     );
-  }
-
-  void showSnackbar({
-    @required BuildContext currentContext,
-    @required String textMessage,
-    bool isError = true,
-    int displayDuration = 3,
-  }) {
-    final showMessage = SnackBar(
-      backgroundColor: isError ? Colors.redAccent : Colors.greenAccent,
-      duration: Duration(seconds: displayDuration),
-      content: Text(
-        textMessage,
-        style: TextStyle(
-          fontSize: 18.0,
-          color: isError ? Colors.white : Colors.black,
-        ),
-      ),
-    );
-
-    // Find the ScaffoldMessenger in the widget tree
-    // and use it to show a SnackBar.
-    ScaffoldMessenger.of(currentContext).showSnackBar(showMessage);
   }
 
   ElevatedButton buildElevatedButton(

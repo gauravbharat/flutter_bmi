@@ -76,3 +76,8 @@ const kMeasurementStorageKey = 'measurement';
 const kHeightStorageKey = 'height';
 const kWeightStorageKey = 'weight';
 const kAgeStorageKey = 'age';
+
+const kCentimetreSuffix = 'cm';
+const kFeetSuffix = 'ft';
+const kPoundsSuffix = 'lb';
+const kKiloSuffix = 'kg';
