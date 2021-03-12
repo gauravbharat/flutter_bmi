@@ -412,7 +412,7 @@ class _InputPageState extends State<InputPage> {
               Text(
                 _selectedMeasurement == MeasurementSystem.imperial
                     ? _height.toStringAsFixed(1)
-                    : (_height * 30.48).toStringAsFixed(0),
+                    : (_height * kHeightConstant).toStringAsFixed(0),
                 style: kStyleLargeFontWt,
               ),
               Text(
@@ -468,7 +468,7 @@ class _InputPageState extends State<InputPage> {
                   _selectedMeasurement == MeasurementSystem.imperial
                       ? _weight.round().toStringAsFixed(0)
                       // : (_weight / 2.205).toStringAsFixed(1),
-                      : (_weight * 0.45359237).toStringAsFixed(0),
+                      : (_weight * kWeightConstant).toStringAsFixed(0),
                   style: kStyleLargeFontWt,
                 ),
                 Text(

@@ -40,6 +40,9 @@ class _SettingsPageState extends State<SettingsPage> {
   String _userSavedHeight;
   String _userSavedWeight;
   String _userSavedAge;
+  String _helperTextHeight = kHelperTextHeightInitValue;
+  String _helperTextWeight = kHelperTextWeightInitValue;
+  bool _initState = true;
 
   @override
   void initState() {
@@ -47,6 +50,7 @@ class _SettingsPageState extends State<SettingsPage> {
     _selectedGender = Gender.female; // default gender, ladies first!
     _selectedMeasurementSystem = MeasurementSystem.metric; // default
     _initUserPreferences();
+    setState(() => _initState = false);
   }
 
   @override
@@ -243,22 +247,22 @@ class _SettingsPageState extends State<SettingsPage> {
                     iconText: 'Height',
                     maxLength: 3,
                     hintText: 'Height in feet ex. 5.7',
-                    // helperText: 'cms = height in feet x 30.48',
                     inputFormattersList: [
                       FilteringTextInputFormatter.allow(
                         RegExp(r'(^\d*\.?\d*)'),
                       ),
                     ],
                     controller: _heightController..text = _userSavedHeight,
+                    initTextValue: _userSavedHeight,
                   ),
                   ReusableTextContainer(
                     colour: _getColor(),
                     iconText: 'Weight',
                     maxLength: 3,
                     hintText: 'Weight in lbs ex. 132',
-                    // helperText: 'kg = weight in lbs x 0.45',
                     inputFormattersList: [kAllowOnlyInt],
                     controller: _weightController..text = _userSavedWeight,
+                    initTextValue: _userSavedWeight,
                   ),
                   ReusableTextContainer(
                     colour: _getColor(),

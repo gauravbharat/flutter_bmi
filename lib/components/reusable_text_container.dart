@@ -1,15 +1,16 @@
+import 'package:bmi_calculator/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class ReusableTextContainer extends StatelessWidget {
+class ReusableTextContainer extends StatefulWidget {
   ReusableTextContainer({
     @required this.colour,
     @required this.iconText,
     @required this.maxLength,
     this.hintText,
     this.inputFormattersList,
-    this.helperText,
     this.controller,
+    this.initTextValue,
   });
 
   final Color colour;
@@ -17,39 +18,120 @@ class ReusableTextContainer extends StatelessWidget {
   final String iconText;
   final String hintText;
   final int maxLength;
-  final String helperText;
   final TextEditingController controller;
+  final String initTextValue;
+
+  @override
+  _ReusableTextContainerState createState() => _ReusableTextContainerState();
+}
+
+class _ReusableTextContainerState extends State<ReusableTextContainer> {
+  String _dynamicHelperText;
+  bool _loadingState = false;
+  String _suffixText;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _suffixText = (widget.iconText == 'Height')
+        ? 'ft'
+        : (widget.iconText == 'Weight')
+            ? 'lb'
+            : 'yrs';
+    _loadingState = true;
+  }
+
+  void _setHelperText(value) {
+    switch (widget.iconText) {
+      case 'Height':
+        if (value.isNotEmpty) {
+          try {
+            final double enteredHeight = double.parse(value);
+            final String approxHeightInCms =
+                (enteredHeight * kHeightConstant).toStringAsFixed(0);
+
+            setState(() {
+              _dynamicHelperText = 'Approx ${approxHeightInCms}cm';
+            });
+          } on FormatException {
+            //
+          }
+        } else {
+          setState(() {
+            _dynamicHelperText = kHelperTextHeightInitValue;
+          });
+        }
+        break;
+
+      case 'Weight':
+        if (value.isNotEmpty) {
+          try {
+            final int enteredWeight = int.parse(value);
+            final String approxWeightInKgs =
+                (enteredWeight * kWeightConstant).toStringAsFixed(0);
+
+            setState(() {
+              _dynamicHelperText = 'Approx ${approxWeightInKgs}kg';
+            });
+          } on FormatException {
+            //
+          }
+        } else {
+          setState(() {
+            _dynamicHelperText = kHelperTextWeightInitValue;
+          });
+        }
+        break;
+    }
+  }
+
+  void _setInitValuesHelperText() {
+    //let the container be built before creating helper text
+    Future.delayed(Duration(seconds: 1), () {
+      _loadingState = false;
+      // print(widget.initTextValue);
+      _setHelperText(widget.initTextValue ?? '');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_loadingState) _setInitValuesHelperText();
+    return buildTextFieldContainer();
+  }
+
+  Container buildTextFieldContainer() {
     return Container(
       padding: const EdgeInsets.fromLTRB(10.0, 10.0, 5.0, 4.0),
       child: TextField(
-        controller: controller,
+        controller: widget.controller,
         autofocus: false,
         decoration: InputDecoration(
+          suffixText: _suffixText,
           enabledBorder: UnderlineInputBorder(
             borderSide: BorderSide(
-              color: colour,
+              color: widget.colour,
             ),
           ),
           focusedBorder: UnderlineInputBorder(
             borderSide: BorderSide(
-              color: colour,
+              color: widget.colour,
             ),
           ),
           filled: true,
-          hintText: hintText,
-          helperText: helperText,
+          hintText: widget.hintText,
+          helperText: _dynamicHelperText,
           icon: Text(
-            iconText,
+            widget.iconText,
             style: TextStyle(fontSize: 18.0),
           ),
         ),
-        maxLength: maxLength,
-        cursorColor: colour,
+        maxLength: widget.maxLength,
+        cursorColor: widget.colour,
         keyboardType: TextInputType.number,
-        inputFormatters: inputFormattersList,
+        inputFormatters: widget.inputFormattersList,
+        onChanged: (value) => _setHelperText(value),
       ),
     );
   }

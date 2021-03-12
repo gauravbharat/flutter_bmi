@@ -81,3 +81,10 @@ const kCentimetreSuffix = 'cm';
 const kFeetSuffix = 'ft';
 const kPoundsSuffix = 'lb';
 const kKiloSuffix = 'kg';
+
+const kWeightConstant = 0.45359237;
+const kHeightConstant = 30.48;
+
+const kHelperTextHeightInitValue = 'cms = height in feet x $kHeightConstant';
+final kHelperTextWeightInitValue =
+    'kg = weight in lbs x ${kWeightConstant.toStringAsFixed(2)}';
