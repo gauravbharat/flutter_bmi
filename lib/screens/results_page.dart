@@ -9,6 +9,7 @@ class ResultsPage extends StatelessWidget {
     final Map<String, Object> _arguments =
         ModalRoute.of(context).settings.arguments;
     final _actionColour = _arguments['actionColour'];
+    final _actionTextColour = _arguments['actionTextColour'];
     final Map<String, String> _bmiResult = _arguments['bmiResult'];
 
     return Scaffold(
@@ -57,7 +58,7 @@ class ResultsPage extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4.0),
                     child: Text(
-                      'Formula Reference: https://en.wikipedia.org/wiki/Body_mass_index',
+                      'BMI results calculation reference: https://en.wikipedia.org/wiki/Body_mass_index',
                       textAlign: TextAlign.center,
                       style: kStyleLabelText,
                     ),
@@ -68,6 +69,7 @@ class ResultsPage extends StatelessWidget {
           ),
           BottomButton(
             colour: _actionColour,
+            buttonTextColour: _actionTextColour,
             buttonText: 'RE-CALCULATE',
             onTap: () {
               Navigator.pop(context);

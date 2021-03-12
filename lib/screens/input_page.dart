@@ -6,13 +6,11 @@ import 'package:bmi_calculator/components/round_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants.dart';
 import '../components/icon_content.dart';
 import '../components/reusable_card.dart';
-
-enum Gender { male, female }
-enum MeasurementSystem { metric, imperial }
 
 class InputPage extends StatefulWidget {
   @override
@@ -20,6 +18,7 @@ class InputPage extends StatefulWidget {
 }
 
 class _InputPageState extends State<InputPage> {
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   Gender _selectedGender = Gender.female;
   MeasurementSystem _selectedMeasurement = MeasurementSystem.imperial;
   String _selectedHeightMeasurement = 'ft';
@@ -32,6 +31,70 @@ class _InputPageState extends State<InputPage> {
   List<bool> _isSelected = [false, true];
   Timer _timer;
   Color _actionColour = kBottomContainerColour;
+  Color _actionTextColour = Colors.white;
+
+  @override
+  void initState() {
+    super.initState();
+    print('all init async calls goes here');
+    _initUserPreferences();
+  }
+
+  Future<void> _initUserPreferences() async {
+    final SharedPreferences prefs = await _prefs;
+    setState(() {
+      _selectedGender = prefs.containsKey(kGenderStorageKey)
+          ? Gender.values[prefs.getInt(kGenderStorageKey)]
+          : _selectedGender;
+
+      _selectedMeasurement = prefs.containsKey(kMeasurementStorageKey)
+          ? MeasurementSystem.values[prefs.getInt(kMeasurementStorageKey)]
+          : _selectedMeasurement;
+
+      _height = prefs.containsKey(kHeightStorageKey)
+          ? prefs.getDouble(kHeightStorageKey)
+          : _height;
+      _weight = prefs.containsKey(kWeightStorageKey)
+          ? prefs.getInt(kWeightStorageKey).toDouble()
+          : _weight;
+      _age = prefs.containsKey(kAgeStorageKey)
+          ? prefs.getInt(kAgeStorageKey)
+          : _age;
+    });
+
+    _setGenderSpecificProps();
+    _setMeasurementSpecificProps();
+  }
+
+  void _setGenderSpecificProps() {
+    setState(() {
+      if (_selectedGender == Gender.male) {
+        _actionColour = Colors.cyanAccent;
+        _actionTextColour = Colors.blueGrey;
+      } else {
+        _actionColour = kBottomContainerColour;
+        _actionTextColour = Colors.white;
+      }
+    });
+  }
+
+  void _setMeasurementSpecificProps() {
+    if (_selectedMeasurement == MeasurementSystem.metric) {
+      _isSelected = [true, false];
+      _selectedHeightMeasurement = 'cm';
+      _selectedWeightMeasurement = 'kg';
+    } else {
+      _isSelected = [false, true];
+      _selectedHeightMeasurement = 'ft';
+      _selectedWeightMeasurement = 'lb';
+    }
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+    print('all cleanup code goes here before the widget is destroyed');
+  }
 
   Color _getGenderCardColour(bool condition) {
     return condition ? kActiveCardColour : kInactiveCardColour;
@@ -126,6 +189,37 @@ class _InputPageState extends State<InputPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('BMI CALCULATOR'),
+        actions: [
+          IconButton(
+            icon: Icon(FontAwesomeIcons.cog),
+            splashRadius: 21.0,
+            onPressed: () async {
+              try {
+                final settings =
+                    await Navigator.pushNamed(context, kRouteNames['settings'])
+                        as Map<String, dynamic>;
+
+                print(settings);
+                // apply settings only when save is pressed, and not cancel or back button
+                if (settings != null) {
+                  setState(() {
+                    _selectedGender = settings[kGenderStorageKey];
+                    _selectedMeasurement = settings[kMeasurementStorageKey];
+                    _height = settings[kHeightStorageKey];
+                    _weight = settings[kWeightStorageKey];
+                    _age = settings[kAgeStorageKey] ?? _age;
+                  });
+
+                  _setGenderSpecificProps();
+                  _setMeasurementSpecificProps();
+                }
+              } catch (e) {
+                //  do nothing
+                print('exception in future on return from settings $e');
+              }
+            },
+          ),
+        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -146,6 +240,7 @@ class _InputPageState extends State<InputPage> {
           BottomButton(
             colour: _actionColour,
             buttonText: 'CALCULATE',
+            buttonTextColour: _actionTextColour,
             onTap: () {
               CalculatorBrain calc =
                   CalculatorBrain(height: _height, weight: _weight);
@@ -153,6 +248,7 @@ class _InputPageState extends State<InputPage> {
               Navigator.pushNamed(context, kRouteNames['results'],
                   arguments: <String, Object>{
                     'actionColour': _actionColour,
+                    'actionTextColour': _actionTextColour,
                     'bmiResult': calc.getResult(),
                   });
             },
@@ -174,10 +270,12 @@ class _InputPageState extends State<InputPage> {
         children: <Widget>[
           Expanded(
             child: ReusableCard(
-              onUserTap: () => setState(() {
-                _selectedGender = Gender.male;
-                _actionColour = Colors.cyanAccent;
-              }),
+              onUserTap: () {
+                setState(() {
+                  _selectedGender = Gender.male;
+                });
+                _setGenderSpecificProps();
+              },
               colour: _getGenderCardColour(_selectedGender == Gender.male),
               cardChild: IconButtonsGender(
                 buttonIcon: FontAwesomeIcons.mars,
@@ -187,10 +285,12 @@ class _InputPageState extends State<InputPage> {
           ),
           Expanded(
             child: ReusableCard(
-              onUserTap: () => setState(() {
-                _selectedGender = Gender.female;
-                _actionColour = kBottomContainerColour;
-              }),
+              onUserTap: () {
+                setState(() {
+                  _selectedGender = Gender.female;
+                });
+                _setGenderSpecificProps();
+              },
               colour: _getGenderCardColour(_selectedGender == Gender.female),
               cardChild: IconButtonsGender(
                 buttonIcon: FontAwesomeIcons.venus,

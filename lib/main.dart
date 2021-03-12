@@ -1,3 +1,4 @@
+import 'package:bmi_calculator/screens/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'screens/input_page.dart';
 import 'screens/results_page.dart';
@@ -27,8 +28,11 @@ class BMICalculator extends StatelessWidget {
       routes: {
         kRouteNames['home']: (context) => InputPage(),
         kRouteNames['results']: (context) => ResultsPage(),
+        kRouteNames['settings']: (context) => SettingsPage(),
       },
       debugShowCheckedModeBanner: false,
     );
   }
 }
+
+//TODO create user profiles for saved preferences, with security or fb-login?

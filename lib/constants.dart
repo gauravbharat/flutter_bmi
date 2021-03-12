@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+enum Gender { male, female }
+enum MeasurementSystem { metric, imperial }
 
 //Prefix constants with k
-const Map<String, String> kRouteNames = {'home': '/', 'results': '/results'};
+const Map<String, String> kRouteNames = {
+  'home': '/',
+  'results': '/results',
+  'settings': '/settings',
+};
 
 const double kBottomContainerHeight = 80.0;
 const Color kActiveCardColour = Color(0xFF1D1E33);
@@ -34,7 +42,7 @@ const double kSliderMax = 8.0;
 const double kMinWeight = 66.14;
 const double kMaxWeight = 330.70;
 
-const int kMinAge = 18;
+const int kMinAge = 10;
 const int kMaxAge = 90;
 
 const kTitleTextStyle = TextStyle(
@@ -54,3 +62,17 @@ const kBmiTextStyle = TextStyle(
 );
 
 const kBodyTextStyle = TextStyle(fontSize: 22.0);
+
+final TextInputFormatter kAllowOnlyInt = FilteringTextInputFormatter.allow(
+  RegExp('[0-9]'),
+);
+
+final TextInputFormatter kAllowOnlyDoubles = FilteringTextInputFormatter.allow(
+  RegExp(r'(^\d*\.?\d*)'),
+);
+
+const kGenderStorageKey = 'gender';
+const kMeasurementStorageKey = 'measurement';
+const kHeightStorageKey = 'height';
+const kWeightStorageKey = 'weight';
+const kAgeStorageKey = 'age';

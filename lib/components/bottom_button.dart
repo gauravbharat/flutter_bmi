@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 
 class BottomButton extends StatelessWidget {
-  const BottomButton(
-      {@required this.colour, @required this.buttonText, @required this.onTap});
+  const BottomButton({
+    @required this.colour,
+    @required this.buttonText,
+    @required this.onTap,
+    this.buttonTextColour: Colors.white,
+  });
   final Color colour;
   final String buttonText;
+  final Color buttonTextColour;
   final Function onTap;
 
   @override
@@ -21,7 +26,11 @@ class BottomButton extends StatelessWidget {
         child: Center(
           child: Text(
             buttonText,
-            style: kStyleLargeButton,
+            style: TextStyle(
+              fontSize: 25.0,
+              fontWeight: FontWeight.bold,
+              color: buttonTextColour,
+            ),
           ),
         ),
       ),
