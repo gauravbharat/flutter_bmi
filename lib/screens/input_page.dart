@@ -1,14 +1,13 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:bmi_calculator/calculator_brain.dart';
 import 'package:bmi_calculator/components/bottom_button.dart';
 import 'package:bmi_calculator/components/round_icon_button.dart';
-import 'package:bmi_calculator/screens/new_profile_page.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants.dart';
 import '../components/icon_content.dart';
@@ -20,15 +19,21 @@ class InputPage extends StatefulWidget {
 }
 
 class _InputPageState extends State<InputPage> {
-  String newProfileName;
-  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  Gender _selectedGender = Gender.female;
-  MeasurementSystem _selectedMeasurement = MeasurementSystem.imperial;
+  String _currentProfileName = '';
+  ProfileMode _currentProfileMode = ProfileMode.createProfile;
+
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+  Gender _selectedGender =
+      Gender.values[kDefaultUserPreferences[kGenderStorageKey]];
+  MeasurementSystem _selectedMeasurement =
+      MeasurementSystem.values[kDefaultUserPreferences[kMeasurementStorageKey]];
   String _selectedHeightMeasurement = kFeetSuffix;
   String _selectedWeightMeasurement = kPoundsSuffix;
-  double _height = 6.0;
-  double _weight = 132.0;
-  int _age = 18;
+  double _height = kDefaultUserPreferences[kHeightStorageKey];
+  double _weight = kDefaultUserPreferences[kWeightStorageKey];
+  int _age = kDefaultUserPreferences[kAgeStorageKey];
+
   bool _startWeightCounter = false;
   bool _startAgeCounter = false;
   List<bool> _isSelected = [false, true];
@@ -41,39 +46,65 @@ class _InputPageState extends State<InputPage> {
     super.initState();
     // TODO get profile name from new profile page, save it in a string array for a list of profiles, and
     // TODO create a key storage for JSON of the default profile valuyes
-    // final Map<String, Object> _arguments =
-    //     ModalRoute.of(context).settings.arguments;
-    //
-    // newProfileName = _arguments['newProfileName'];
 
-    print('newProfileName $newProfileName');
+    Future.delayed(Duration.zero, () {
+      final Map<String, Object> arguments =
+          ModalRoute.of(context).settings.arguments;
+
+      if (arguments != null) {
+        setState(() {
+          _currentProfileName = arguments['profileName'];
+          _currentProfileMode = arguments['profileMode'];
+        });
+
+        print('_currentProfileName $_currentProfileName');
+        print('_currentProfileMode $_currentProfileMode');
+      }
+
+      _initUserPreferences();
+    });
 
     // print('all init async calls goes here');
-    _initUserPreferences();
   }
 
   Future<void> _initUserPreferences() async {
     final SharedPreferences prefs = await _prefs;
 
-    setState(() {
-      _selectedGender = prefs.containsKey(kGenderStorageKey)
-          ? Gender.values[prefs.getInt(kGenderStorageKey)]
-          : _selectedGender;
+    switch (_currentProfileMode) {
+      case ProfileMode.createProfile:
+        if (_currentProfileName.isNotEmpty) {
+          prefs.setString(
+              _currentProfileName, json.encode(kDefaultUserPreferences));
+        }
 
-      _selectedMeasurement = prefs.containsKey(kMeasurementStorageKey)
-          ? MeasurementSystem.values[prefs.getInt(kMeasurementStorageKey)]
-          : _selectedMeasurement;
+        break;
 
-      _height = prefs.containsKey(kHeightStorageKey)
-          ? prefs.getDouble(kHeightStorageKey)
-          : _height;
-      _weight = prefs.containsKey(kWeightStorageKey)
-          ? prefs.getInt(kWeightStorageKey).toDouble()
-          : _weight;
-      _age = prefs.containsKey(kAgeStorageKey)
-          ? prefs.getInt(kAgeStorageKey)
-          : _age;
-    });
+      case ProfileMode.loadProfile:
+        if (_currentProfileName.isNotEmpty) {
+          final userPreferences =
+              json.decode(prefs.getString(_currentProfileName));
+
+          setState(() {
+            _selectedGender =
+                Gender.values[userPreferences[kGenderStorageKey]] ??
+                    _selectedGender;
+
+            _selectedMeasurement = MeasurementSystem
+                    .values[userPreferences[kMeasurementStorageKey]] ??
+                _selectedMeasurement;
+
+            _height = userPreferences[kHeightStorageKey] ?? _height;
+            _weight = userPreferences[kWeightStorageKey].toDouble() ?? _weight;
+            _age = userPreferences[kAgeStorageKey] ?? _age;
+          });
+
+          print('userPreferences $userPreferences');
+        }
+        break;
+
+      case ProfileMode.showHomePage:
+        break;
+    }
 
     _setGenderSpecificProps();
     _setMeasurementSpecificProps();
@@ -202,15 +233,19 @@ class _InputPageState extends State<InputPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('BMI CALCULATOR'),
+        // automaticallyImplyLeading:
+        //     (_currentProfileMode != ProfileMode.createProfile),
         actions: [
           IconButton(
             icon: Icon(FontAwesomeIcons.cog),
             splashRadius: 21.0,
             onPressed: () async {
               try {
-                final settings =
-                    await Navigator.pushNamed(context, kRouteNames['settings'])
-                        as Map<String, dynamic>;
+                final settings = await Navigator.pushNamed(
+                    context, kRouteNames['settings'],
+                    arguments: <String, Object>{
+                      'profileName': _currentProfileName,
+                    }) as Map<String, dynamic>;
 
                 print(settings);
                 // apply settings only when save is pressed, and not cancel or back button

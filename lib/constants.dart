@@ -3,14 +3,15 @@ import 'package:flutter/services.dart';
 
 enum Gender { male, female }
 enum MeasurementSystem { metric, imperial }
+enum ProfileMode { createProfile, loadProfile, showHomePage }
 
 //Prefix constants with k
 const Map<String, String> kRouteNames = {
-  'home': '/',
+  'home': '/home',
   'results': '/results',
   'settings': '/settings',
-  'createProfile': '/newProfile',
-  'loadProfiles': '/userProfiles'
+  'profile': '/',
+  // 'loadProfiles': '/'
 };
 
 const double kBottomContainerHeight = 80.0;
@@ -73,7 +74,7 @@ final TextInputFormatter kAllowOnlyDoubles = FilteringTextInputFormatter.allow(
   RegExp(r'(^\d*\.?\d*)'),
 );
 
-const kProfileListKey = 'profiles';
+const kProfileListKey = 'profileList';
 const kGenderStorageKey = 'gender';
 const kMeasurementStorageKey = 'measurement';
 const kHeightStorageKey = 'height';
@@ -91,3 +92,11 @@ const kHeightConstant = 30.48;
 const kHelperTextHeightInitValue = 'cms = height in feet x $kHeightConstant';
 final kHelperTextWeightInitValue =
     'kg = weight in lbs x ${kWeightConstant.toStringAsFixed(2)}';
+
+final Map<String, Object> kDefaultUserPreferences = {
+  kGenderStorageKey: Gender.female.index,
+  kMeasurementStorageKey: MeasurementSystem.imperial.index,
+  kHeightStorageKey: 6.0,
+  kWeightStorageKey: 132.0,
+  kAgeStorageKey: 18
+};

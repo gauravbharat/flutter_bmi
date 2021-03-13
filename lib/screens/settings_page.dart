@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 import '../constants.dart';
 import 'package:bmi_calculator/components/reusable_card.dart';
@@ -40,17 +41,29 @@ class _SettingsPageState extends State<SettingsPage> {
   String _userSavedHeight;
   String _userSavedWeight;
   String _userSavedAge;
-  String _helperTextHeight = kHelperTextHeightInitValue;
-  String _helperTextWeight = kHelperTextWeightInitValue;
-  bool _initState = true;
+  String _currentProfileName;
+  Map<String, Object> _userPreferences;
 
   @override
   void initState() {
     super.initState();
     _selectedGender = Gender.female; // default gender, ladies first!
     _selectedMeasurementSystem = MeasurementSystem.metric; // default
-    _initUserPreferences();
-    setState(() => _initState = false);
+
+    Future.delayed(Duration.zero, () {
+      final Map<String, Object> arguments =
+          ModalRoute.of(context).settings.arguments;
+
+      if (arguments != null) {
+        setState(() {
+          _currentProfileName = arguments['profileName'];
+        });
+
+        print('_currentProfileName $_currentProfileName');
+      }
+
+      _initUserPreferences();
+    });
   }
 
   @override
@@ -64,23 +77,27 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _initUserPreferences() async {
     final SharedPreferences prefs = await _prefs;
-    final Gender userSelectedGender =
-        Gender.values[prefs.getInt(kGenderStorageKey)];
-    final MeasurementSystem userSelectedMeasurementSystem =
-        MeasurementSystem.values[prefs.getInt(kMeasurementStorageKey)];
 
+    _userPreferences = json.decode(prefs.getString(_currentProfileName));
+
+    print('userPreferences $_userPreferences');
+
+    // final Gender userSelectedGender =
+    //     ;
+    // final MeasurementSystem userSelectedMeasurementSystem =
+    //     ;
+    //
     setState(() {
-      _selectedGender = userSelectedGender;
-      _selectedMeasurementSystem = userSelectedMeasurementSystem;
-      _userSavedHeight = prefs.containsKey(kHeightStorageKey)
-          ? prefs.getDouble(kHeightStorageKey).toString()
-          : kSliderMin.toStringAsFixed(1);
-      _userSavedWeight = prefs.containsKey(kWeightStorageKey)
-          ? prefs.getInt(kWeightStorageKey).toString()
-          : kMinWeight.round().toString();
-      _userSavedAge = prefs.containsKey(kAgeStorageKey)
-          ? prefs.getInt(kAgeStorageKey).toString()
-          : kMinAge.toString();
+      _selectedGender = Gender.values[_userPreferences[kGenderStorageKey]];
+      _selectedMeasurementSystem =
+          MeasurementSystem.values[_userPreferences[kMeasurementStorageKey]];
+      _userSavedHeight = _userPreferences[kHeightStorageKey].toString() ??
+          kSliderMin.toStringAsFixed(1);
+      _userSavedWeight =
+          (_userPreferences[kWeightStorageKey] as num).round().toString() ??
+              kMinWeight.round().toString();
+      _userSavedAge =
+          _userPreferences[kAgeStorageKey].toString() ?? kMinAge.toString();
     });
 
     // print('userSelectedGender $userSelectedGender');
@@ -92,26 +109,21 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _storeValues() async {
     final SharedPreferences prefs = await _prefs;
-    prefs.setInt(kGenderStorageKey, _selectedGender.index);
-    prefs.setInt(kMeasurementStorageKey, _selectedMeasurementSystem.index);
 
-    if (_heightController.text.isNotEmpty) {
-      prefs.setDouble(kHeightStorageKey, double.parse(_heightController.text));
-    } else {
-      if (prefs.containsKey(kHeightStorageKey)) prefs.remove(kHeightStorageKey);
-    }
+    Map<String, Object> userPreferences = {
+      kGenderStorageKey: _selectedGender.index,
+      kMeasurementStorageKey: _selectedMeasurementSystem.index,
+      kHeightStorageKey: _heightController.text.isEmpty
+          ? kSliderMin
+          : double.parse(_heightController.text),
+      kWeightStorageKey: _weightController.text.isEmpty
+          ? kMinWeight.round()
+          : int.parse(_weightController.text),
+      kAgeStorageKey:
+          _ageController.text.isEmpty ? kMinAge : int.parse(_ageController.text)
+    };
 
-    if (_weightController.text.isNotEmpty) {
-      prefs.setInt(kWeightStorageKey, int.parse(_weightController.text));
-    } else {
-      if (prefs.containsKey(kWeightStorageKey)) prefs.remove(kWeightStorageKey);
-    }
-
-    if (_ageController.text.isNotEmpty) {
-      prefs.setInt(kAgeStorageKey, int.parse(_ageController.text));
-    } else {
-      if (prefs.containsKey(kAgeStorageKey)) prefs.remove(kAgeStorageKey);
-    }
+    prefs.setString(_currentProfileName, json.encode(userPreferences));
 
     ShowSnackbar(
       currentContext: context,
@@ -178,70 +190,79 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(10.0, 4.0, 5.0, 4.0),
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Gender:',
                           style: TextStyle(fontSize: 18.0),
                         ),
-                        Radio(
-                          activeColor: _getColor(),
-                          value: Gender.male,
-                          groupValue: _selectedGender,
-                          onChanged: (value) =>
-                              setState(() => _selectedGender = value),
-                        ),
-                        Text(
-                          'Male',
-                          style: TextStyle(fontSize: 18.0),
-                        ),
-                        Radio(
-                          activeColor: _getColor(),
-                          value: Gender.female,
-                          groupValue: _selectedGender,
-                          onChanged: (value) =>
-                              setState(() => _selectedGender = value),
-                        ),
-                        Text(
-                          'Female',
-                          style: TextStyle(fontSize: 18.0),
+                        Row(
+                          children: [
+                            Radio(
+                              activeColor: _getColor(),
+                              value: Gender.male,
+                              groupValue: _selectedGender,
+                              onChanged: (value) =>
+                                  setState(() => _selectedGender = value),
+                            ),
+                            Text(
+                              'Male',
+                              style: TextStyle(fontSize: 18.0),
+                            ),
+                            Radio(
+                              activeColor: _getColor(),
+                              value: Gender.female,
+                              groupValue: _selectedGender,
+                              onChanged: (value) =>
+                                  setState(() => _selectedGender = value),
+                            ),
+                            Text(
+                              'Female',
+                              style: TextStyle(fontSize: 18.0),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(10.0, 4.0, 5.0, 4.0),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Measurement:',
-                          style: TextStyle(fontSize: 18.0),
-                        ),
-                        Radio(
-                          activeColor: _getColor(),
-                          value: MeasurementSystem.metric,
-                          groupValue: _selectedMeasurementSystem,
-                          onChanged: (value) => setState(
-                              () => _selectedMeasurementSystem = value),
-                        ),
-                        Text(
-                          'Metric',
-                          style: TextStyle(fontSize: 18.0),
-                        ),
-                        Radio(
-                          activeColor: _getColor(),
-                          value: MeasurementSystem.imperial,
-                          groupValue: _selectedMeasurementSystem,
-                          onChanged: (value) => setState(
-                              () => _selectedMeasurementSystem = value),
-                        ),
-                        Text(
-                          'Imperial',
-                          style: TextStyle(fontSize: 18.0),
-                        ),
-                      ],
-                    ),
-                  ),
+                      padding: const EdgeInsets.fromLTRB(10.0, 4.0, 5.0, 4.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Measurement:',
+                            style: TextStyle(fontSize: 18.0),
+                          ),
+                          Row(
+                            children: [
+                              Radio(
+                                activeColor: _getColor(),
+                                value: MeasurementSystem.metric,
+                                groupValue: _selectedMeasurementSystem,
+                                onChanged: (value) => setState(
+                                    () => _selectedMeasurementSystem = value),
+                              ),
+                              Text(
+                                'Metric',
+                                style: TextStyle(fontSize: 18.0),
+                              ),
+                              Radio(
+                                activeColor: _getColor(),
+                                value: MeasurementSystem.imperial,
+                                groupValue: _selectedMeasurementSystem,
+                                onChanged: (value) => setState(
+                                    () => _selectedMeasurementSystem = value),
+                              ),
+                              Text(
+                                'Imperial',
+                                style: TextStyle(fontSize: 18.0),
+                              ),
+                            ],
+                          ),
+                        ],
+                      )),
                   ReusableTextContainer(
                     colour: _getColor(),
                     iconText: 'Height',

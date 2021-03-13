@@ -1,42 +1,15 @@
-import 'package:bmi_calculator/screens/new_profile_page.dart';
+import 'package:bmi_calculator/screens/profile_page.dart';
 import 'package:bmi_calculator/screens/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'screens/input_page.dart';
 import 'screens/results_page.dart';
 import 'constants.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-enum ProfileMode { createProfile, loadProfile, showHomePage }
-
-void main() => runApp(BMICalculator());
-
-class BMICalculator extends StatefulWidget {
-  @override
-  _BMICalculatorState createState() => _BMICalculatorState();
+void main() {
+  runApp(BMICalculator());
 }
 
-class _BMICalculatorState extends State<BMICalculator> {
-  ProfileMode currentMode = ProfileMode.createProfile;
-  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-
-  @override
-  void initState() {
-    super.initState();
-    print('all init async calls goes here');
-
-    _checkPageToLoad();
-  }
-
-  Future<void> _checkPageToLoad() async {
-    final SharedPreferences prefs = await _prefs;
-
-    if (prefs.containsKey(kProfileListKey)) {
-      setState(() {
-        currentMode = ProfileMode.loadProfile;
-      });
-    }
-  }
-
+class BMICalculator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -54,11 +27,9 @@ class _BMICalculatorState extends State<BMICalculator> {
       // ),
       // home: InputPage(),
       // Using Named Routes instead of home page property
-      initialRoute: currentMode == ProfileMode.createProfile
-          ? kRouteNames['createProfile']
-          : kRouteNames['home'],
+      initialRoute: '/',
       routes: {
-        kRouteNames['createProfile']: (context) => NewProfilePage(),
+        kRouteNames['profile']: (context) => ProfilePage(),
         kRouteNames['home']: (context) => InputPage(),
         kRouteNames['results']: (context) => ResultsPage(),
         kRouteNames['settings']: (context) => SettingsPage(),
@@ -67,5 +38,3 @@ class _BMICalculatorState extends State<BMICalculator> {
     );
   }
 }
-
-//TODO create user profiles for saved preferences, with security or fb-login?
