@@ -163,211 +163,217 @@ class _SettingsPageState extends State<SettingsPage> {
       appBar: AppBar(
         title: Text('SETTINGS'),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
-            child: ReusableCard(
-              colour: kActiveCardColour,
-              cardChild: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'Your default app preferences:',
-                      textAlign: TextAlign.center,
-                      style: kBodyTextStyle,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
+              child: ReusableCard(
+                colour: kActiveCardColour,
+                cardChild: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'Your default app preferences:',
+                        textAlign: TextAlign.center,
+                        style: kBodyTextStyle,
+                      ),
                     ),
-                  ),
-                  Divider(
-                    height: 20,
-                    thickness: 5,
-                    indent: 20,
-                    endIndent: 20,
-                    color: _getColor(),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(10.0, 4.0, 5.0, 4.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Gender:',
-                          style: TextStyle(fontSize: 18.0),
-                        ),
-                        Row(
-                          children: [
-                            Radio(
-                              activeColor: _getColor(),
-                              value: Gender.male,
-                              groupValue: _selectedGender,
-                              onChanged: (value) =>
-                                  setState(() => _selectedGender = value),
-                            ),
-                            Text(
-                              'Male',
-                              style: TextStyle(fontSize: 18.0),
-                            ),
-                            Radio(
-                              activeColor: _getColor(),
-                              value: Gender.female,
-                              groupValue: _selectedGender,
-                              onChanged: (value) =>
-                                  setState(() => _selectedGender = value),
-                            ),
-                            Text(
-                              'Female',
-                              style: TextStyle(fontSize: 18.0),
-                            ),
-                          ],
-                        ),
-                      ],
+                    Divider(
+                      height: 20,
+                      thickness: 5,
+                      indent: 20,
+                      endIndent: 20,
+                      color: _getColor(),
                     ),
-                  ),
-                  Padding(
+                    Padding(
                       padding: const EdgeInsets.fromLTRB(10.0, 4.0, 5.0, 4.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Measurement:',
+                            'Gender:',
                             style: TextStyle(fontSize: 18.0),
                           ),
                           Row(
                             children: [
                               Radio(
                                 activeColor: _getColor(),
-                                value: MeasurementSystem.metric,
-                                groupValue: _selectedMeasurementSystem,
-                                onChanged: (value) => setState(
-                                    () => _selectedMeasurementSystem = value),
+                                value: Gender.male,
+                                groupValue: _selectedGender,
+                                onChanged: (value) =>
+                                    setState(() => _selectedGender = value),
                               ),
                               Text(
-                                'Metric',
+                                'Male',
                                 style: TextStyle(fontSize: 18.0),
                               ),
                               Radio(
                                 activeColor: _getColor(),
-                                value: MeasurementSystem.imperial,
-                                groupValue: _selectedMeasurementSystem,
-                                onChanged: (value) => setState(
-                                    () => _selectedMeasurementSystem = value),
+                                value: Gender.female,
+                                groupValue: _selectedGender,
+                                onChanged: (value) =>
+                                    setState(() => _selectedGender = value),
                               ),
                               Text(
-                                'Imperial',
+                                'Female',
                                 style: TextStyle(fontSize: 18.0),
                               ),
                             ],
                           ),
                         ],
-                      )),
-                  ReusableTextContainer(
-                    colour: _getColor(),
-                    iconText: 'Height',
-                    maxLength: 3,
-                    hintText: 'Height in feet ex. 5.7',
-                    inputFormattersList: [
-                      FilteringTextInputFormatter.allow(
-                        RegExp(r'(^\d*\.?\d*)'),
                       ),
-                    ],
-                    controller: _heightController..text = _userSavedHeight,
-                    initTextValue: _userSavedHeight,
-                  ),
-                  ReusableTextContainer(
-                    colour: _getColor(),
-                    iconText: 'Weight',
-                    maxLength: 3,
-                    hintText: 'Weight in lbs ex. 132',
-                    inputFormattersList: [kAllowOnlyInt],
-                    controller: _weightController..text = _userSavedWeight,
-                    initTextValue: _userSavedWeight,
-                  ),
-                  ReusableTextContainer(
-                    colour: _getColor(),
-                    iconText: 'Age',
-                    maxLength: 2,
-                    hintText: 'Years equal or between 10 to 90',
-                    inputFormattersList: [kAllowOnlyInt],
-                    controller: _ageController..text = _userSavedAge,
-                  ),
-                  ButtonBar(
-                    children: [
-                      buildElevatedButton(
-                        buttonText: 'Save',
-                        onPressed: () {
-                          //Do type validations before storing data in shared preferences
-                          if (_heightController.text.isNotEmpty) {
-                            final double height =
-                                double.parse(_heightController.text);
+                    ),
+                    Padding(
+                        padding: const EdgeInsets.fromLTRB(10.0, 4.0, 5.0, 4.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Measurement:',
+                              style: TextStyle(fontSize: 18.0),
+                            ),
+                            Row(
+                              children: [
+                                Radio(
+                                  activeColor: _getColor(),
+                                  value: MeasurementSystem.metric,
+                                  groupValue: _selectedMeasurementSystem,
+                                  onChanged: (value) => setState(
+                                      () => _selectedMeasurementSystem = value),
+                                ),
+                                Text(
+                                  'Metric',
+                                  style: TextStyle(fontSize: 18.0),
+                                ),
+                                Radio(
+                                  activeColor: _getColor(),
+                                  value: MeasurementSystem.imperial,
+                                  groupValue: _selectedMeasurementSystem,
+                                  onChanged: (value) => setState(
+                                      () => _selectedMeasurementSystem = value),
+                                ),
+                                Text(
+                                  'Imperial',
+                                  style: TextStyle(fontSize: 18.0),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )),
+                    ReusableTextContainer(
+                      colour: _getColor(),
+                      iconText: 'Height',
+                      maxLength: 3,
+                      hintText: 'Height in feet ex. 5.7',
+                      keyboardType:
+                          TextInputType.numberWithOptions(decimal: true),
+                      inputFormattersList: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'(^\d*\.?\d*)'),
+                        ),
+                      ],
+                      controller: _heightController..text = _userSavedHeight,
+                      initTextValue: _userSavedHeight,
+                    ),
+                    ReusableTextContainer(
+                      colour: _getColor(),
+                      iconText: 'Weight',
+                      maxLength: 3,
+                      hintText: 'Weight in lbs ex. 132',
+                      keyboardType: TextInputType.number,
+                      inputFormattersList: [kAllowOnlyInt],
+                      controller: _weightController..text = _userSavedWeight,
+                      initTextValue: _userSavedWeight,
+                    ),
+                    ReusableTextContainer(
+                      colour: _getColor(),
+                      iconText: 'Age',
+                      maxLength: 2,
+                      hintText: 'Years equal or between 10 to 90',
+                      keyboardType: TextInputType.number,
+                      inputFormattersList: [kAllowOnlyInt],
+                      controller: _ageController..text = _userSavedAge,
+                    ),
+                    ButtonBar(
+                      children: [
+                        buildElevatedButton(
+                          buttonText: 'Save',
+                          onPressed: () {
+                            //Do type validations before storing data in shared preferences
+                            if (_heightController.text.isNotEmpty) {
+                              final double height =
+                                  double.parse(_heightController.text);
 
-                            if (height < kSliderMin || height > kSliderMax) {
-                              //  show error
-                              ShowSnackbar(
-                                currentContext: context,
-                                textMessage:
-                                    'Height should be equal to or between $kSliderMin and $kSliderMax feet only!',
-                              )..showError();
-                              return;
+                              if (height < kSliderMin || height > kSliderMax) {
+                                //  show error
+                                ShowSnackbar(
+                                  currentContext: context,
+                                  textMessage:
+                                      'Height should be equal to or between $kSliderMin and $kSliderMax feet only!',
+                                )..showError();
+                                return;
+                              }
                             }
-                          }
 
-                          if (_weightController.text.isNotEmpty) {
-                            final int weight =
-                                int.parse(_weightController.text);
+                            if (_weightController.text.isNotEmpty) {
+                              final int weight =
+                                  int.parse(_weightController.text);
 
-                            if (weight < kMinWeight.round() ||
-                                weight > kMaxWeight.round()) {
-                              //  show error
-                              ShowSnackbar(
-                                currentContext: context,
-                                textMessage:
-                                    'Weight should be equal to or between ${kMinWeight.round()} and ${kMaxWeight.round()} pounds only!',
-                              )..showError();
-                              return;
+                              if (weight < kMinWeight.round() ||
+                                  weight > kMaxWeight.round()) {
+                                //  show error
+                                ShowSnackbar(
+                                  currentContext: context,
+                                  textMessage:
+                                      'Weight should be equal to or between ${kMinWeight.round()} and ${kMaxWeight.round()} pounds only!',
+                                )..showError();
+                                return;
+                              }
                             }
-                          }
 
-                          if (_ageController.text.isNotEmpty) {
-                            final int age = int.parse(_ageController.text);
+                            if (_ageController.text.isNotEmpty) {
+                              final int age = int.parse(_ageController.text);
 
-                            if (age < kMinAge || age > kMaxAge) {
-                              //  show error
-                              ShowSnackbar(
-                                currentContext: context,
-                                textMessage:
-                                    'Age should be equal to or between $kMinAge and $kMaxAge only!',
-                              )..showError();
-                              return;
+                              if (age < kMinAge || age > kMaxAge) {
+                                //  show error
+                                ShowSnackbar(
+                                  currentContext: context,
+                                  textMessage:
+                                      'Age should be equal to or between $kMinAge and $kMaxAge only!',
+                                )..showError();
+                                return;
+                              }
                             }
-                          }
 
-                          //  print('''
-                          //  entered height ${_heightController.text.isNotEmpty ? _heightController.text : 'No height netered'},
-                          // entered weight ${_weightController.text},
-                          // entered age ${_ageController.text},
-                          // selecetdGender ${_selectedGender.index},
-                          // selecetdGenderGEt ${Gender.values[_selectedGender.index]}
-                          //  ''');
+                            //  print('''
+                            //  entered height ${_heightController.text.isNotEmpty ? _heightController.text : 'No height netered'},
+                            // entered weight ${_weightController.text},
+                            // entered age ${_ageController.text},
+                            // selecetdGender ${_selectedGender.index},
+                            // selecetdGenderGEt ${Gender.values[_selectedGender.index]}
+                            //  ''');
 
-                          _storeValues();
-                        },
-                      ),
-                      buildElevatedButton(
-                        buttonText: 'Cancel',
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ],
-                  ),
-                ],
+                            _storeValues();
+                          },
+                        ),
+                        buildElevatedButton(
+                          buttonText: 'Cancel',
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

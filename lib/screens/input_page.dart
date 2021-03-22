@@ -271,6 +271,7 @@ class _InputPageState extends State<InputPage> {
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           _genderCards(),
           _measurementToggle(),
@@ -364,7 +365,7 @@ class _InputPageState extends State<InputPage> {
           color: kIconColour,
           borderRadius: BorderRadius.circular(10.0),
           textStyle: TextStyle(
-            fontSize: 18.0,
+            fontSize: 16.0,
           ),
           children: [
             Padding(
@@ -451,6 +452,9 @@ class _InputPageState extends State<InputPage> {
           Text(
             'HEIGHT',
             style: kStyleLabelText,
+          ),
+          SizedBox(
+            height: 5.0,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

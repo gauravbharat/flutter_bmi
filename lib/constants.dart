@@ -20,9 +20,9 @@ const Color kInactiveCardColour = Color(0xFF111328);
 const Color kBottomContainerColour = Color(0xFFEB1555);
 const Color kOverlayColour = Color(0x29EB1555);
 
-const double kIconSize = 80.0;
+const double kIconSize = 40.0;
 const double kSizedBoxHeight = 15.0;
-const double kFontSize = 18.0;
+const double kFontSize = 14.0;
 const Color kIconColour = Color(0xFF8D8E98);
 const TextStyle kStyleLabelText = TextStyle(
   fontSize: kFontSize,
@@ -30,7 +30,7 @@ const TextStyle kStyleLabelText = TextStyle(
 );
 
 const TextStyle kStyleLargeFontWt = TextStyle(
-  fontSize: 50.0,
+  fontSize: 30.0,
   fontWeight: FontWeight.w900,
 );
 

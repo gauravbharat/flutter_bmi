@@ -7,6 +7,7 @@ class ReusableTextContainer extends StatefulWidget {
     @required this.colour,
     @required this.iconText,
     @required this.maxLength,
+    @required this.keyboardType,
     this.hintText,
     this.inputFormattersList,
     this.controller,
@@ -20,6 +21,7 @@ class ReusableTextContainer extends StatefulWidget {
   final int maxLength;
   final TextEditingController controller;
   final String initTextValue;
+  final TextInputType keyboardType;
 
   @override
   _ReusableTextContainerState createState() => _ReusableTextContainerState();
@@ -32,7 +34,6 @@ class _ReusableTextContainerState extends State<ReusableTextContainer> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _suffixText = (widget.iconText == 'Height')
         ? 'ft'
@@ -129,7 +130,7 @@ class _ReusableTextContainerState extends State<ReusableTextContainer> {
         ),
         maxLength: widget.maxLength,
         cursorColor: widget.colour,
-        keyboardType: TextInputType.number,
+        keyboardType: widget.keyboardType,
         inputFormatters: widget.inputFormattersList,
         onChanged: (value) => _setHelperText(value),
       ),

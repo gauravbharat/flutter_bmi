@@ -41,121 +41,124 @@ class _ProfilePageState extends State<ProfilePage> {
       //   title: Text('BMI User Profiles'),
       //   automaticallyImplyLeading: false,
       // ),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment:
-              kIsWeb ? CrossAxisAlignment.center : CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 15.0,
-                vertical: 15.0,
-              ),
-              child: Text(
-                'Create a new profile:',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 22.0,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment:
+                kIsWeb ? CrossAxisAlignment.center : CrossAxisAlignment.stretch,
+            children: [
+              _buildProfileList(),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 15.0,
+                  vertical: 15.0,
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(kIsWeb ? 70.0 : 8.0),
-              child: Container(
-                padding: EdgeInsets.all(kIsWeb ? 20.0 : 15.0),
-                child: TextField(
-                  controller: _controller,
-                  autofocus: false,
-                  maxLength: 10,
-                  cursorColor: Colors.greenAccent,
-                  decoration: InputDecoration(
-                    labelText: 'Profile Name',
-                    labelStyle: TextStyle(
-                      fontSize: 16.0,
-                    ),
-                    helperText: 'Ex. self, mom, dad, etc. without spaces',
-                    helperStyle: TextStyle(fontSize: 14.0),
-                    filled: true,
-                    prefixIcon: Icon(
-                      Icons.person_add,
-                    ),
+                child: Text(
+                  'Create a new profile:',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 22.0,
                   ),
-                  keyboardType: TextInputType.text,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                      RegExp("[a-zA-Z]"),
-                    ),
-                  ],
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30.0),
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (_controller.text.isEmpty) {
-                    ShowSnackbar(
-                        currentContext: context,
-                        textMessage: 'Please enter a valid profile name!')
-                      ..showError();
-                  } else {
-                    final SharedPreferences prefs = await _prefs;
-                    if (prefs.containsKey(_controller.text)) {
+              Padding(
+                padding: const EdgeInsets.all(kIsWeb ? 70.0 : 8.0),
+                child: Container(
+                  padding: EdgeInsets.all(kIsWeb ? 20.0 : 15.0),
+                  child: TextField(
+                    controller: _controller,
+                    autofocus: false,
+                    maxLength: 10,
+                    cursorColor: Colors.greenAccent,
+                    decoration: InputDecoration(
+                      labelText: 'Profile Name',
+                      labelStyle: TextStyle(
+                        fontSize: 16.0,
+                      ),
+                      helperText: 'Ex. self, mom, dad, etc. without spaces',
+                      helperStyle: TextStyle(fontSize: 14.0),
+                      filled: true,
+                      prefixIcon: Icon(
+                        Icons.person_add,
+                      ),
+                    ),
+                    keyboardType: TextInputType.text,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        RegExp("[a-zA-Z]"),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    if (_controller.text.isEmpty) {
                       ShowSnackbar(
                           currentContext: context,
-                          textMessage:
-                              'Profile ${_controller.text} already exists, please choose a different name!')
+                          textMessage: 'Please enter a valid profile name!')
                         ..showError();
                     } else {
-                      List<String> stringList =
-                          prefs.containsKey(kProfileListKey)
-                              ? prefs.getStringList(kProfileListKey)
-                              : <String>[];
-                      stringList.add(_controller.text);
+                      final SharedPreferences prefs = await _prefs;
+                      if (prefs.containsKey(_controller.text)) {
+                        ShowSnackbar(
+                            currentContext: context,
+                            textMessage:
+                                'Profile ${_controller.text} already exists, please choose a different name!')
+                          ..showError();
+                      } else {
+                        List<String> stringList =
+                            prefs.containsKey(kProfileListKey)
+                                ? prefs.getStringList(kProfileListKey)
+                                : <String>[];
+                        stringList.add(_controller.text);
 
-                      prefs.setStringList(kProfileListKey, stringList);
-                      await _getProfileList();
+                        prefs.setStringList(kProfileListKey, stringList);
+                        await _getProfileList();
 
-                      Navigator.pushNamed(context, kRouteNames['home'],
-                          arguments: <String, Object>{
-                            'profileName': _controller.text,
-                            'profileMode': ProfileMode.createProfile
-                          });
+                        Navigator.pushNamed(context, kRouteNames['home'],
+                            arguments: <String, Object>{
+                              'profileName': _controller.text,
+                              'profileMode': ProfileMode.createProfile
+                            });
 
-                      _controller.text = '';
+                        _controller.text = '';
+                      }
                     }
-                  }
-                },
+                  },
+                  child: Text(
+                    'Create Profile*',
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      color: Colors.blueGrey,
+                    ),
+                  ),
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                      (Set<MaterialState> states) {
+                        if (states.contains(MaterialState.pressed))
+                          return Colors.greenAccent.withOpacity(0.5);
+                        return Colors
+                            .greenAccent; // Use the component's default.
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
                 child: Text(
-                  'Create Profile*',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    color: Colors.blueGrey,
-                  ),
-                ),
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                    (Set<MaterialState> states) {
-                      if (states.contains(MaterialState.pressed))
-                        return Colors.greenAccent.withOpacity(0.5);
-                      return Colors.greenAccent; // Use the component's default.
-                    },
-                  ),
+                  '*New profile would be created with system default settings. You may set your app preferences later in the app settings for this profile.',
+                  style: TextStyle(fontSize: 16.0, color: Colors.grey),
+                  textAlign: TextAlign.justify,
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Text(
-                '*New profile would be created with system default settings. You may set your app preferences later in the app settings for this profile.',
-                style: TextStyle(fontSize: 16.0, color: Colors.grey),
-                textAlign: TextAlign.justify,
-              ),
-            ),
-            _buildProfileList(),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -169,21 +172,12 @@ class _ProfilePageState extends State<ProfilePage> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 5.0),
-          child: Divider(
-            height: 20,
-            thickness: 5,
-            indent: 20,
-            endIndent: 20,
-          ),
-        ),
-        Padding(
           padding: const EdgeInsets.all(kIsWeb ? 50.0 : 15.0),
           child: Text(
             'Select existing profile (total: ${_storedUserProfiles.length}):',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 22.0,
+              fontSize: 18.0,
             ),
           ),
         ),
@@ -208,17 +202,17 @@ class _ProfilePageState extends State<ProfilePage> {
             textAlign: TextAlign.justify,
           ),
         ),
+        // Padding(
+        //   padding: const EdgeInsets.symmetric(vertical: 10.0),
+        //   child: Divider(
+        //     height: 10,
+        //     thickness: 5,
+        //     indent: 20,
+        //     endIndent: 20,
+        //   ),
+        // ),
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10.0),
-          child: Divider(
-            height: 20,
-            thickness: 5,
-            indent: 20,
-            endIndent: 20,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30.0),
+          padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 15.0),
           child: ElevatedButton(
             onPressed: () async {
               final SharedPreferences prefs = await _prefs;
@@ -281,6 +275,15 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
               ),
             ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5.0),
+          child: Divider(
+            height: 10,
+            thickness: 5,
+            indent: 20,
+            endIndent: 20,
           ),
         ),
       ],

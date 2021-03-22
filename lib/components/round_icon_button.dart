@@ -16,8 +16,8 @@ class RoundIconButton extends StatelessWidget {
     return RawMaterialButton(
       elevation: 0.0,
       constraints: BoxConstraints.tightFor(
-        width: 56.0,
-        height: 56.0,
+        width: 45.0,
+        height: 45.0,
       ),
       shape: CircleBorder(),
       // shape:
